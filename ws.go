@@ -33,7 +33,7 @@ var (
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		origin := r.Header.Get("Origin")
-    return strings.HasPrefix(origin, "http://localhost") ||
+		return strings.HasPrefix(origin, "http://localhost") ||
 			strings.HasSuffix(origin, ".diegodorado.com")
 	},
 }
@@ -57,7 +57,7 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
 		var msg Message
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			log.Printf("error: %v", err)
+			log.Printf("error reading message: %v", err)
 			break
 		}
 
@@ -115,7 +115,7 @@ func broadcastMessage(message Message) {
 			if c.topics[message.Topic] {
 				err := c.conn.WriteJSON(message)
 				if err != nil {
-					log.Printf("error: %v", err)
+					log.Printf("error writing to client: %v", err)
 					c.conn.Close()
 					removeClient(c)
 				}
