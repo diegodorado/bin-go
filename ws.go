@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -31,14 +32,17 @@ var (
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		return true // Be cautious with this in production
+		origin := r.Header.Get("Origin")
+    return strings.HasPrefix(origin, "http://localhost") ||
+			strings.HasSuffix(origin, ".diegodorado.com")
 	},
 }
 
 func handleConnections(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("error upgrading connection: %v", err)
+		return
 	}
 
 	client := &Client{conn: ws, topics: make(map[string]bool)}
